@@ -1,0 +1,20 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t imflavio/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+    - docker run -e CI=true imflavio/react-test npm test
+
+after_success:
+    - docker build -t imflavio/multi-client ./client
+    - docker build -t imflavio/multi-nginx ./nginx
+    - docker build -t imflavio/multi-api ./api
+    - docker build -t imflavio/multi-worker ./worker
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push imflavio/multi-client
+    - docker push imflavio/multi-nginx
+    - docker push imflavio/multi-api
+    - docker push imflavio/multi-worker
