@@ -3,13 +3,13 @@ services:
     - docker
 
 before_install:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker build -t imflavio/react-test -f ./client/Dockerfile.dev ./client
 
 script:
     - docker run -e CI=true imflavio/react-test npm test
 
 after_success:
-    - docker login -u "$DOCKER_ID" -p "$DOCKER_PASSWORD"
     - docker build -t imflavio/multi-client ./client
     - docker build -t imflavio/multi-nginx ./nginx
     - docker build -t imflavio/multi-api ./api
